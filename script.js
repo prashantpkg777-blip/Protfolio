@@ -67,3 +67,47 @@
   } else {
     revealEls.forEach(el=>el.classList.add('show'));
   }
+
+  (function(){
+  const API = 'https://countapi.mileshilliard.com/api/v1';
+  const VIEW_KEY = 'your_unique_site_key_2026_views';   // change to something unique to your site
+  const LIKE_KEY = 'your_unique_site_key_2026_likes';   // change to something unique to your site
+  const LIKED_FLAG = 'site_liked_v1';
+
+  const viewCountEl = document.getElementById('viewCount');
+  const likeCountEl = document.getElementById('likeCount');
+  const likeBtn = document.getElementById('likeBtn');
+
+  function fmt(n){
+    n = Number(n) || 0;
+    if(n >= 1000) return (n/1000).toFixed(1).replace(/\.0$/, '') + 'k';
+    return String(n);
+  }
+
+  // Count this page load as a view
+  fetch(`${API}/hit/${VIEW_KEY}`).then(r=>r.json()).then(d=>{
+    viewCountEl.textContent = fmt(d.value);
+  }).catch(()=>{ viewCountEl.textContent = '—'; });
+
+  // Show current like total without incrementing it
+  fetch(`${API}/get/${LIKE_KEY}`).then(r=>r.json()).then(d=>{
+    likeCountEl.textContent = fmt(d.value);
+  }).catch(()=>{ likeCountEl.textContent = '0'; });
+
+  if(localStorage.getItem(LIKED_FLAG) === '1'){
+    likeBtn.classList.add('liked');
+  }
+
+  likeBtn.addEventListener('click', ()=>{
+    likeBtn.classList.add('pop');
+    setTimeout(()=>likeBtn.classList.remove('pop'), 400);
+
+    if(localStorage.getItem(LIKED_FLAG) === '1') return; // one like per visitor
+
+    likeBtn.classList.add('liked');
+    localStorage.setItem(LIKED_FLAG, '1');
+    fetch(`${API}/hit/${LIKE_KEY}`).then(r=>r.json()).then(d=>{
+      likeCountEl.textContent = fmt(d.value);
+    }).catch(()=>{});
+  });
+})();

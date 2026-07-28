@@ -237,6 +237,52 @@
     </div>
   </section>
 
+  <section class="section" id="feedback">
+    <div class="section-inner">
+      <div class="section-head reveal">
+        <span class="section-tag">04 — feedback</span>
+        <h2>Got thoughts? I'd love to hear them.</h2>
+        <p>Rate your experience and leave a quick note — it opens your email app, ready to send straight to my inbox.</p>
+      </div>
+
+      <div class="feedback-grid">
+        <form class="glass feedback-form reveal" id="feedbackForm" novalidate>
+          <div class="form-row">
+            <label for="fbName">Name</label>
+            <input type="text" id="fbName" name="name" placeholder="Your name" required>
+          </div>
+
+          <div class="form-row">
+            <label>Rating</label>
+            <div class="star-rating" id="starRating" role="radiogroup" aria-label="Rate your experience">
+              <button type="button" class="star" data-value="1" role="radio" aria-checked="false" aria-label="1 star">★</button>
+              <button type="button" class="star" data-value="2" role="radio" aria-checked="false" aria-label="2 stars">★</button>
+              <button type="button" class="star" data-value="3" role="radio" aria-checked="false" aria-label="3 stars">★</button>
+              <button type="button" class="star" data-value="4" role="radio" aria-checked="false" aria-label="4 stars">★</button>
+              <button type="button" class="star" data-value="5" role="radio" aria-checked="false" aria-label="5 stars">★</button>
+            </div>
+            <input type="hidden" id="fbRating" value="0">
+          </div>
+
+          <div class="form-row">
+            <label for="fbMessage">Message</label>
+            <textarea id="fbMessage" rows="4" placeholder="What did you think?" required></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="fbSubmit">Send feedback</button>
+          <p class="form-note" id="fbNote">This opens your email app with the message pre-filled — nothing sends until you hit "Send" there.</p>
+        </form>
+
+        <div class="feedback-list-wrap reveal">
+          <h3 class="feedback-list-title">Recent feedback</h3>
+          <div class="feedback-list" id="feedbackList">
+            <p class="feedback-empty" id="feedbackEmpty">No feedback yet — be the first!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="section" id="contact">
     <div class="glass contact-card reveal glow-ring">
       <h2>Let's build something.</h2>

@@ -111,3 +111,105 @@
     }).catch(()=>{});
   });
 })();
+
+(function(){
+  const RECIPIENT_EMAIL = 'prashantpkg777@gmail.com'; // change if needed
+  const LS_KEY = 'pk_portfolio_feedback_v1';
+
+  const form = document.getElementById('feedbackForm');
+  const nameInput = document.getElementById('fbName');
+  const msgInput = document.getElementById('fbMessage');
+  const ratingInput = document.getElementById('fbRating');
+  const stars = document.querySelectorAll('#starRating .star');
+  const list = document.getElementById('feedbackList');
+  const emptyMsg = document.getElementById('feedbackEmpty');
+
+  let currentRating = 0;
+
+  function paintStars(value){
+    stars.forEach(s => {
+      const v = Number(s.dataset.value);
+      s.classList.toggle('filled', v <= value);
+      s.setAttribute('aria-checked', v === value ? 'true' : 'false');
+    });
+  }
+
+  stars.forEach(star => {
+    star.addEventListener('mouseenter', () => paintStars(Number(star.dataset.value)));
+    star.addEventListener('click', () => {
+      currentRating = Number(star.dataset.value);
+      ratingInput.value = currentRating;
+      paintStars(currentRating);
+    });
+  });
+  document.getElementById('starRating').addEventListener('mouseleave', () => paintStars(currentRating));
+
+  function loadFeedback(){
+    try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; }
+    catch(e){ return []; }
+  }
+
+  function renderFeedback(){
+    const items = loadFeedback();
+    if(items.length === 0){
+      emptyMsg.style.display = 'block';
+      return;
+    }
+    emptyMsg.style.display = 'none';
+    list.querySelectorAll('.feedback-card').forEach(el => el.remove());
+    items.slice().reverse().forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'glass feedback-card';
+      card.innerHTML = `
+        <div class="feedback-card-top">
+          <span class="feedback-card-name">${item.name}</span>
+          <span class="feedback-card-stars">${'★'.repeat(item.rating)}${'☆'.repeat(5-item.rating)}</span>
+        </div>
+        <p class="feedback-card-msg">${item.message}</p>
+        <span class="feedback-card-time">${item.date}</span>
+      `;
+      list.appendChild(card);
+    });
+  }
+
+  function escapeHtml(str){
+    return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  renderFeedback();
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    let valid = true;
+
+    [ [nameInput, nameInput.value.trim()], [msgInput, msgInput.value.trim()] ].forEach(([el, val]) => {
+      const row = el.closest('.form-row');
+      if(!val){ row.classList.add('error'); valid = false; }
+      else { row.classList.remove('error'); }
+    });
+    if(currentRating === 0) valid = false;
+
+    if(!valid) return;
+
+    const name = escapeHtml(nameInput.value.trim());
+    const message = escapeHtml(msgInput.value.trim());
+    const rating = currentRating;
+    const date = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+
+    // Save locally so it shows in the list on this visitor's browser
+    const items = loadFeedback();
+    items.push({ name, message, rating, date });
+    localStorage.setItem(LS_KEY, JSON.stringify(items));
+    renderFeedback();
+
+    // Open the visitor's email client, pre-filled, addressed to you
+    const subject = encodeURIComponent(`Portfolio feedback from ${name}`);
+    const body = encodeURIComponent(`Rating: ${rating}/5\n\nMessage:\n${message}`);
+    window.location.href = `mailto:${RECIPIENT_EMAIL}?subject=${subject}&body=${body}`;
+
+    form.reset();
+    currentRating = 0;
+    ratingInput.value = 0;
+    paintStars(0);
+  });
+})();
